@@ -111,7 +111,7 @@ mkdir -p logstash/config
 vim /root/logstash/config/logstash.conf
 ```
 
-```json
+```
 input {
     tcp {
         port => 5044
