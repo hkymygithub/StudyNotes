@@ -78,7 +78,7 @@ mkdir -p kibana/config
 
 ```yaml
 server.host: "0"
-elasticsearch.hosts: [ "http://192.168.0.19:9200" ]
+elasticsearch.hosts: [ "http://***.***.***.***:9200" ]
 elasticsearch.username: "elastic"
 elasticsearch.password: "********"
 monitoring.ui.container.elasticsearch.enabled: true
@@ -92,7 +92,7 @@ i18n.locale: "zh-CN"
 docker run \
 --name kibana \
 -v /root/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml \
--e ELASTICSEARCH_URL=http://192.168.0.19:9200 \
+-e ELASTICSEARCH_URL=http://***.***.***.***:9200 \
 -p 5601:5601 \
 -d kibana:7.13.3
 ```
@@ -121,7 +121,7 @@ input {
 output{
   elasticsearch {
         action => "index"
-        hosts => ["http://192.168.0.19:9200"]
+        hosts => ["http://***.***.***.***:9200"]
         index => "logstash-%{+YYYY.MM.dd}"
         user => "elastic"
         password => "********"
