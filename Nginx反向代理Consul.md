@@ -1,4 +1,4 @@
-## Nginx反向代理Consul
+# Nginx反向代理Consul
 
 ### 服务器环境：CentOS 7.6
 

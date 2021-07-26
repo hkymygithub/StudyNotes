@@ -1,4 +1,4 @@
-## Nginx安装
+# Nginx安装
 
 ### 服务器环境：CentOS 7.6
 
