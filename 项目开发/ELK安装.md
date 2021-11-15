@@ -230,12 +230,13 @@ output{
 #### 创建docker-compose-elk.yml文件
 
 ```
-version: '3'
+version: "3"
 
 services:
   elasticsearch:
     image: elasticsearch:7.13.3
     container_name: elasticsearch
+    restart: always
     networks:
       - toolbox
     ports:
@@ -263,6 +264,7 @@ services:
   kibana:
     image: kibana:7.13.3
     container_name: kibana
+    restart: always
     depends_on:
       - elasticsearch
       - logstash
