@@ -1,10 +1,12 @@
 # ELK安装
 
-### 服务器环境：CentOS 7.6
-
-### ELK部署方式：docker或docker-compose
-
 ### docker部署
+
+#### 环境：
+
+服务器：CentOS 7.6
+
+安装有docker
 
 #### 1.下载镜像
 
@@ -144,6 +146,12 @@ logstash:7.13.3
 
 ### docker-compose部署
 
+#### 环境：
+
+服务器：CentOS 7.6
+
+安装有docker，docker-compose
+
 #### 1.下载镜像
 
 ```
@@ -160,15 +168,15 @@ mkdir docker-compose
 mkdir -p elasticsearch/data
 mkdir -p elasticsearch/config
 mkdir -p elasticsearch/plugins
-chmod 777 elasticsearch/data
-chmod 777 elasticsearch/config
-chmod 777 elasticsearch/plugins
+chmod 764 elasticsearch/data
+chmod 764 elasticsearch/config
+chmod 764 elasticsearch/plugins
 
 mkdir -p kibana/config
-chmod 777 kibana/config
+chmod 764 kibana/config
 
 mkdir -p logstash/config
-chmod 777 logstash/config
+chmod 764 logstash/config
 ```
 
 #### 3.创建elasticsearch.yml文件
