@@ -1,39 +1,55 @@
 # Git
 
+## Git命令与操作
+
 ### 配置
+
 #### 显示当前的 git 配置信息
-```
+
+```bash
 git config --list
 ```
+
 #### 编辑 git 配置文件
-```
+
+```bash
 # 针对当前仓库
 git config -e
 # 针对系统所有仓库
 git config -e --global
 ```
+
 #### 设置提交代码时的用户信息
-```
+
+```bash
 git config --global user.name [userName]
 git config --global user.email [email]
 ```
+
 ### 生成ssh密钥
-```
+
+```bash
 ssh-keygen -t rsa -C [email]
 ```
+
 ### 初始化仓库
-```
+
+```bash
 # 当前仓库
 git init
 # 指定仓库
 git init [dirName]
 ```
+
 ### 拷贝远程仓库
-```
+
+```bash
 git clone [url]
 ```
+
 ### 添加文件到暂存区
-```
+
+```bash
 # 添加某个文件
 git add [file_1] [file_2] ...
 # 添加指定目录
@@ -41,12 +57,16 @@ git add [dir]
 # 添加所有文件
 git add .
 ```
+
 ### 查看仓库当前的状态
-```
+
+```bash
 git status
 ```
+
 ### 比较暂存区和工作区的差异
-```
+
+```bash
 # 尚未缓存的改动
 git diff
 # 查看已缓存的改动

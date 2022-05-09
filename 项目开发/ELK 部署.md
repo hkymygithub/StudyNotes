@@ -1,14 +1,14 @@
 # ELK安装
 
-### docker部署
+## docker部署
 
-#### 环境：
+### 环境
 
 服务器：CentOS 7.6
 
 安装有docker
 
-#### 1.下载镜像
+### 1.下载镜像
 
 ```bash
 docker pull elasticsearch:7.13.3
@@ -16,16 +16,16 @@ docker pull kibana:7.13.3
 docker pull logstash:7.13.3
 ```
 
-#### 2.安装elasticsearch
+### 2.安装elasticsearch
 
-##### 2.1创建挂载目录
+#### 2.1创建挂载目录
 
 ```bash
 mkdir -p elasticsearch/config
 mkdir -p elasticsearch/data
 ```
 
-##### 2.2创建elasticsearch.yml
+#### 2.2创建elasticsearch.yml
 
 ```yaml
 http.host: 0.0.0.0
@@ -37,7 +37,7 @@ xpack.license.self_generated.type: basic
 xpack.security.transport.ssl.enabled: true
 ```
 
-##### 2.3.创建elasticsearch实例
+#### 2.3.创建elasticsearch实例
 
 ```bash
 docker run \
@@ -49,7 +49,7 @@ docker run \
 -d elasticsearch:7.13.3
 ```
 
-##### 2.4设置ES密码
+#### 2.4设置ES密码
 
 ```bash
 #进入容器
@@ -58,27 +58,27 @@ docker exec -it elasticsearch /bin/bash
 ./bin/elasticsearch-setup-passwords interactive
 ```
 
-##### 2.5安装IK分词器
+#### 2.5安装IK分词器
 
 ```bash
 ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
 ```
 
-##### 2.6退出容器并重启
+#### 2.6退出容器并重启
 
-```
+```bash
 docker restart elasticsearch
 ```
 
-#### 3.安装kibana
+### 3.安装kibana
 
-##### 3.1创建挂载目录
+#### 3.1创建挂载目录
 
 ```bash
 mkdir -p kibana/config
 ```
 
-##### 3.2创建kibana.yml
+#### 3.2创建kibana.yml
 
 ```yaml
 server.host: "0"
@@ -90,7 +90,7 @@ monitoring.ui.container.elasticsearch.enabled: true
 i18n.locale: "zh-CN"
 ```
 
-##### 3.3创建kibana实例
+#### 3.3创建kibana实例
 
 ```bash
 docker run \
@@ -101,21 +101,21 @@ docker run \
 -d kibana:7.13.3
 ```
 
-#### 4.安装Logstash
+### 4.安装Logstash
 
-##### 4.1创建挂载目录
+#### 4.1创建挂载目录
 
 ```bash
 mkdir -p logstash/config
 ```
 
-##### 4.2创建logstash.conf
+#### 4.2创建logstash.conf
 
 ```bash
 vim /root/logstash/config/logstash.conf
 ```
 
-```
+```text
 input {
     tcp {
         port => 5044
@@ -134,7 +134,7 @@ output{
 }
 ```
 
-##### 4.4 创建logstash实例
+#### 4.4 创建logstash实例
 
 ```bash
 docker run \
@@ -144,25 +144,25 @@ docker run \
 logstash:7.13.3 
 ```
 
-### docker-compose部署
+## docker-compose部署
 
-#### 环境：
+### 环境
 
 服务器：CentOS 7.6
 
 安装有docker，docker-compose
 
-#### 1.下载镜像
+### 1.下载镜像
 
-```
+```bash
 docker pull elasticsearch:7.13.3
 docker pull kibana:7.13.3
 docker pull logstash:7.13.3
 ```
 
-#### 2.创建挂载路径
+### 2.创建挂载路径
 
-```
+```bash
 mkdir docker-compose
 
 mkdir -p elasticsearch/data
@@ -179,15 +179,15 @@ mkdir -p logstash/config
 chmod 764 logstash/config
 ```
 
-#### 3.创建elasticsearch.yml文件
+### 3.创建elasticsearch.yml文件
 
-```
+```bash
 touch elasticsearch/config/elasticsearch.yml
 ```
 
 elasticsearch.yml内容：
 
-```
+```yaml
 cluster.name: elasticsearch
 http.host: 0.0.0.0
 http.cors.enabled: true
@@ -195,30 +195,30 @@ http.cors.allow-origin: "*"
 http.cors.allow-headers: Authorization,X-Requested-With,Content-Length,Content-Type
 ```
 
-#### 4.创建kibana.yml文件
+### 4.创建kibana.yml文件
 
-```
+```bash
 touch kibana/config/kibana.yml
 ```
 
 kibana.yml内容：
 
-```
+```yaml
 server.host: "0"
 elasticsearch.hosts: [ "http://elasticsearch:9200" ]
 monitoring.ui.container.elasticsearch.enabled: true
 i18n.locale: "zh-CN"
 ```
 
-#### 5.创建logstash.conf
+### 5.创建logstash.conf
 
-```
+```bash
 touch logstash/config/logstash.conf
 ```
 
 logstash.conf内容：
 
-```
+```text
 input {
     tcp {
         port => 5044
@@ -235,9 +235,9 @@ output{
 }
 ```
 
-#### 创建docker-compose-elk.yml文件
+### 创建docker-compose-elk.yml文件
 
-```
+```yaml
 version: "3"
 
 services:
@@ -288,18 +288,17 @@ networks:
 
 ```
 
-#### 6.运行docker-compose-elk.yml
+### 6.运行docker-compose-elk.yml
 
-```
+```bash
 docker-compose -f docker-compose-elk.yml up -d
 ```
 
-#### 7.查看是否部署成功
+### 7.查看是否部署成功
 
-```
+```text
 #在浏览器访问kibana
 http://ip:5601
 #在浏览器访问elasticsearch
 http://ip:9
 ```
-
