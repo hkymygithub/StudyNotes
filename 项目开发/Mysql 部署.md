@@ -1,10 +1,103 @@
 # Mysql安装
 
-### Mysql集群部署——docker-compose
+## Docker Compose
 
-#### 部署环境：
+### Mysql 单节点
 
-服务器：均为Linux
+#### 部署环境
+
+服务器: Linux
+
+#### 创建相应挂载目录
+
+```bash
+mkdir -p ./mysql/conf
+mkdir -p ./mysql/data
+```
+
+### 创建 my.conf 文件
+
+```bash
+cd mysql/conf
+vim my.conf
+```
+
+```text
+# Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+#
+# The MySQL  Server configuration file.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+secure-file-priv= NULL
+
+# Custom config should go here
+!includedir /etc/mysql/conf.d/
+```
+
+#### 创建 docker-compose.yml 文件
+
+```bash
+cd mysql
+vim docker-compose.yml
+```
+
+```yml
+version: '3'
+
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "******"
+      TZ: "Asia/Shanghai"
+    network_mode: host
+    volumes: 
+      - ./conf/my.cnf:/etc/mysql/my.cnf
+      - ./data:/var/lib/mysql
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+```
+
+#### 运行 Redis
+
+```bash
+docker-compose up -d
+```
+
+#### 检查 Redis 是否启动
+
+```bash
+docker ps
+```
+
+### Mysql 集群部署
+
+#### 部署环境
+
+服务器：均为 Linux
 
 | 发行版本       | IP（假设）  |
 | -------------- | ----------- |
@@ -13,43 +106,43 @@
 
 注意事项：
 
-每台服务器均装有docker和docker-compose
+每台服务器均装有 Docker 和 Docker Compose
 
-本次部署共两台服务器，mysql集群采取一主一从模式。
+本次部署共两台服务器，Mysql 集群采取一主一从模式。
 
 个服务器需要开放相应端口：
 
-  192.168.0.1开放
+  192.168.0.1 开放
 
-  192.168.0.2开放
+  192.168.0.2 开放
 
 #### 创建相应挂载目录
 
-##### 192.168.0.1服务器(master节点)
+##### 192.168.0.1 服务器( master 节点)
 
-```
+```bash
 mkdir -p ./mysql-cluster/master/log
 mkdir -p ./mysql-cluster/master/conf
 mkdir -p ./mysql-cluster/master/data
 ```
 
-##### 192.168.0.2服务器(slave节点)
+##### 192.168.0.2 服务器( slave 节点)
 
-```
+```bash
 mkdir -p ./mysql-cluster/slave/log
 mkdir -p ./mysql-cluster/slave/conf
 mkdir -p ./mysql-cluster/slave/data
 ```
 
-#### 创建配置文件my.cnf
+#### 创建配置文件 my.cnf
 
-##### 192.168.0.1服务器(master节点)
+##### 192.168.0.1 服务器( master 节点)
 
-```
+```bash
 vim ./mysql-cluster/master/conf/my.cnf
 ```
 
-```
+```text
 # Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -81,13 +174,13 @@ secure-file-priv= NULL
 !includedir /etc/mysql/conf.d/
 ```
 
-##### 192.168.0.2服务器(slave节点)
+##### 192.168.0.2 服务器( slave 节点)
 
-```
+```bash
 vim ./mysql-cluster/slave/conf/my.cnf
 ```
 
-```
+```text
 # Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -119,16 +212,16 @@ secure-file-priv= NULL
 !includedir /etc/mysql/conf.d/
 ```
 
-#### 创建docker-compose.yml文件
+#### 创建 docker-compose.yml 文件
 
-##### 192.168.0.1服务器(master节点)
+##### 192.168.0.1 服务器( master 节点)
 
-```
+```bash
 cd mysql-cluster
 vim docker-compose.yml
 ```
 
-```
+```yml
 version: '3'
 services:
   mysql-master:
@@ -151,14 +244,14 @@ services:
       - "--sync_binlog=1"
 ```
 
-##### 192.168.0.2服务器(slave节点)
+##### 192.168.0.2 服务器( slave 节点)
 
-```
+```bash
 cd mysql-cluster
 vim docker-compose.yml
 ```
 
-```
+```yml
 version: '3'
 services:
   mysql-slave:
@@ -181,23 +274,23 @@ services:
 
 #### 启动镜像
 
-##### 192.168.0.1服务器(master节点)
+##### 192.168.0.1 服务器( master 节点)
 
-```
+```bash
 cd mysql-cluster
 docjer-compose up -d
 ```
 
-##### 192.168.0.2服务器(slave节点)
+##### 192.168.0.2 服务器( slave 节点)
 
-```
+```bash
 cd mysql-cluster
 docjer-compose up -d
 ```
 
-#### 进入master容器，创建主从同步账号
+#### 进入 master 容器，创建主从同步账号
 
-```
+```bash
 docker exec -it mysql-master /bin/bash
 #用密码登录客户端，“******”为之前设置的密码
 mysql -uroot -p******
@@ -219,9 +312,9 @@ mysql> SHOW MASTER STATUS;
 1 row in set (0.00 sec)
 ```
 
-#### 进入slave容器，实现主从同步
+#### 进入 slave 容器，实现主从同步
 
-```
+```bash
 docker exec -it mysql-slave /bin/bash
 #用密码登录客户端，“******”为之前设置的密码
 mysql -uroot -p******
@@ -236,9 +329,9 @@ SHOW SLAVE STATUS\G
 
 #### 测试集群是否同步
 
-进入maste结点，创建test数据库
+进入 maste 结点，创建 test 数据库
 
-```
+```bash
 mysql> create database test;
 mysql> show databases;
 +--------------------+
@@ -253,9 +346,9 @@ mysql> show databases;
 5 rows in set (0.01 sec)
 ```
 
-进入salve节点查看数据库
+进入 salve 节点查看数据库
 
-```
+```bash
 mysql> show databases;
 +--------------------+
 | Database           |
