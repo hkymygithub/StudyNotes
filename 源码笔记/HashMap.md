@@ -424,24 +424,27 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /* ---------------- Public operations -------------- */
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the specified initial
-     * capacity and load factor.
+     * HashMap 构造方法，有明确的初始容量和平衡因子
      *
-     * @param  initialCapacity the initial capacity
-     * @param  loadFactor      the load factor
+     * @param  initialCapacity 初始容量
+     * @param  loadFactor      平衡因子
      * @throws IllegalArgumentException if the initial capacity is negative
      *         or the load factor is nonpositive
      */
     public HashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
+            //如果容量小于 0 则抛出异常
             throw new IllegalArgumentException("Illegal initial capacity: " +
                                                initialCapacity);
         if (initialCapacity > MAXIMUM_CAPACITY)
+            //如果容量大于最大容量限制则将容量设置为最大容量
             initialCapacity = MAXIMUM_CAPACITY;
         if (loadFactor <= 0 || Float.isNaN(loadFactor))
+            //如果平衡因子小于 0 或者不是数字则抛出异常
             throw new IllegalArgumentException("Illegal load factor: " +
                                                loadFactor);
         this.loadFactor = loadFactor;
+        //未初始化 table 临界值为容量匹配到最大的2的幂次
         this.threshold = tableSizeFor(initialCapacity);
     }
 
@@ -548,21 +551,22 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * Implements Map.get and related methods.
      *
-     * @param hash hash for key
-     * @param key the key
-     * @return the node, or null if none
+     * @param hash key 的 hash 值
+     * @param key key
+     * @return 找到就返回相应 node 对象，否则就返回 null
      */
     final Node<K,V> getNode(int hash, Object key) {
         Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
         if ((tab = table) != null && (n = tab.length) > 0 &&
-            (first = tab[(n - 1) & hash]) != null) {
-            if (first.hash == hash && // always check first node
+            (first = tab[(n - 1) & hash]) != null) {//  取符合hash值的第一个节点
+            if (first.hash == hash && //  总是先判断第一个节点
                 ((k = first.key) == key || (key != null && key.equals(k))))
                 return first;
-            if ((e = first.next) != null) {
-                if (first instanceof TreeNode)
+            //如果第一个节点不符合
+            if ((e = first.next) != null) {//  如果第一个节点有下一个节点
+                if (first instanceof TreeNode)//  如果当前 first 节点是红黑树的节点，则利用树的查找找到目标节点
                     return ((TreeNode<K,V>)first).getTreeNode(hash, key);
-                do {
+                do {// 否则，此 hash 值节点存储结构为链表，采取循环遍历的方式寻找目标节点
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         return e;
@@ -573,24 +577,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Returns <tt>true</tt> if this map contains a mapping for the
-     * specified key.
+     * 如果 Map 中包含给定的 key 则返回 true
      *
-     * @param   key   The key whose presence in this map is to be tested
-     * @return <tt>true</tt> if this map contains a mapping for the specified
-     * key.
+     * @param   key    key
+     * @return 如果 Map 中包含给定的 key 则返回 true
      */
     public boolean containsKey(Object key) {
         return getNode(hash(key), key) != null;
     }
 
     /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for the key, the old
-     * value is replaced.
+     * 将指定的值与此 Map 中的指定 key 相关联。
+     * 如果 Map 中的 key 已经存在，则相应 value 会被替换
      *
-     * @param key key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
+     * @param key 与指定值关联的 key
+     * @param value 与指定 key 关联的 value
      * @return the previous value associated with <tt>key</tt>, or
      *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
      *         (A <tt>null</tt> return can also indicate that the map
@@ -762,9 +763,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Copies all of the mappings from the specified map to this map.
-     * These mappings will replace any mappings that this map had for
-     * any of the keys currently in the specified map.
+     * 从另一个 Map 中复制所有值到此 Map
+     * 当另一 Map key 和此 Map key 相同时此 Map 对应 key 的 value 会被另一 Map 的 value 替换
      *
      * @param m mappings to be stored in this map
      * @throws NullPointerException if the specified map is null
@@ -840,22 +840,20 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Removes all of the mappings from this map.
-     * The map will be empty after this call returns.
+     * 清空 Map
      */
     public void clear() {
         Node<K,V>[] tab;
-        modCount++;
-        if ((tab = table) != null && size > 0) {
-            size = 0;
-            for (int i = 0; i < tab.length; ++i)
+        modCount++;//  修改次数加 1
+        if ((tab = table) != null && size > 0) {//  如果 table 不为空
+            size = 0;//  将 size 置为 0
+            for (int i = 0; i < tab.length; ++i)//  循环将 table 中每一项置为 null
                 tab[i] = null;
         }
     }
 
     /**
-     * Returns <tt>true</tt> if this map maps one or more keys to the
-     * specified value.
+     * 如果 Map 中包含指定的 value 则返回 true
      *
      * @param value value whose presence in this map is to be tested
      * @return <tt>true</tt> if this map maps one or more keys to the
@@ -863,9 +861,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     public boolean containsValue(Object value) {
         Node<K,V>[] tab; V v;
-        if ((tab = table) != null && size > 0) {
-            for (int i = 0; i < tab.length; ++i) {
-                for (Node<K,V> e = tab[i]; e != null; e = e.next) {
+        if ((tab = table) != null && size > 0) {// 如果表不空
+            for (int i = 0; i < tab.length; ++i) {//  循环遍历table(Node 数组)
+                for (Node<K,V> e = tab[i]; e != null; e = e.next) {//  遍历每一个 Node 链表（红黑树）
                     if ((v = e.value) == value ||
                         (value != null && value.equals(v)))
                         return true;
@@ -876,19 +874,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Returns a {@link Set} view of the keys contained in this map.
-     * The set is backed by the map, so changes to the map are
-     * reflected in the set, and vice-versa.  If the map is modified
-     * while an iteration over the set is in progress (except through
-     * the iterator's own <tt>remove</tt> operation), the results of
-     * the iteration are undefined.  The set supports element removal,
-     * which removes the corresponding mapping from the map, via the
-     * <tt>Iterator.remove</tt>, <tt>Set.remove</tt>,
-     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt>
-     * operations.  It does not support the <tt>add</tt> or <tt>addAll</tt>
-     * operations.
+     * 返回 Map 中 的 key Set 集合
+     * 这个 Set 由 Map 提供，因此对 Map 的更改会反映在 Set 中，反之亦然。如果在对 Set  进行迭代时修改了映射，则迭代的结果是不确定的（通过* 迭代器自己的删除操作除外）。该 Set 支持元素移除，即通过 Iterator.remove、Set.remove、removeAll、retainAll 和 clear 操作从映射中* 移除相应的映射。它不支持 add 或 addAll 操作
      *
-     * @return a set view of the keys contained in this map
+     * @return 返回 Map 中 的 key Set 集合
      */
     public Set<K> keySet() {
         Set<K> ks = keySet;
