@@ -774,7 +774,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Removes the mapping for the specified key from this map if present.
+     * 根据 Key 从 Map 中删除特定的元素，并返回 value
      *
      * @param  key key whose mapping is to be removed from the map
      * @return the previous value associated with <tt>key</tt>, or
@@ -789,10 +789,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Implements Map.remove and related methods.
+     * 删除元素并返回被删除的元素
      *
-     * @param hash hash for key
-     * @param key the key
+     * @param hash key 的 hash 值
+     * @param key key
      * @param value the value to match if matchValue, else ignored
      * @param matchValue if true only remove if value is equal
      * @param movable if false do not move other nodes while removing
@@ -802,15 +802,15 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                boolean matchValue, boolean movable) {
         Node<K,V>[] tab; Node<K,V> p; int n, index;
         if ((tab = table) != null && (n = tab.length) > 0 &&
-            (p = tab[index = (n - 1) & hash]) != null) {
+            (p = tab[index = (n - 1) & hash]) != null) {//  表非空，并且 hash 后取到的第一个元素非空
             Node<K,V> node = null, e; K k; V v;
             if (p.hash == hash &&
-                ((k = p.key) == key || (key != null && key.equals(k))))
+                ((k = p.key) == key || (key != null && key.equals(k))))//  如果第一个元素就是目标元素
                 node = p;
-            else if ((e = p.next) != null) {
-                if (p instanceof TreeNode)
+            else if ((e = p.next) != null) {//  如果不是，继续遍历寻找其它元素
+                if (p instanceof TreeNode)//  如果结构为红黑树则按树的方式遍历
                     node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
-                else {
+                else {//  否则就遍历链表
                     do {
                         if (e.hash == hash &&
                             ((k = e.key) == key ||
@@ -824,15 +824,17 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             }
             if (node != null && (!matchValue || (v = node.value) == value ||
                                  (value != null && value.equals(v)))) {
-                if (node instanceof TreeNode)
+                //  如果找到了对应元素并且 matchValue 为 false 则直接进行删除操作
+                //  如果找到了对应元素并且 matchValue 为 true 则判断该元素的 value 是否相等，若相等则删除，若不等则放弃删除，最后返回 null
+                if (node instanceof TreeNode)//  如果这个元素是红黑树节点则按树的删除方法删除
                     ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
-                else if (node == p)
+                else if (node == p)//  否则就是链表节点，如果第一个元素就是目标元素则删除第一个元素
                     tab[index] = node.next;
-                else
+                else//  否则目标元素就在链表中间，删除该元素
                     p.next = node.next;
-                ++modCount;
-                --size;
-                afterNodeRemoval(node);
+                ++modCount;//  修改次数加一，即更新数据版本号
+                --size;//  表大小减一
+                afterNodeRemoval(node);//  删除元素后的操作，此处为空操作
                 return node;
             }
         }
@@ -865,7 +867,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             for (int i = 0; i < tab.length; ++i) {//  循环遍历table(Node 数组)
                 for (Node<K,V> e = tab[i]; e != null; e = e.next) {//  遍历每一个 Node 链表（红黑树）
                     if ((v = e.value) == value ||
-                        (value != null && value.equals(v)))
+                        (value != null && value.equals(v)))//  如果找到了对应元素则返回 true
                         return true;
                 }
             }
