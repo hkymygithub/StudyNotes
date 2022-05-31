@@ -251,7 +251,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * 桶的树化阈值
-     * 在存储数据时，当链表长度大于等于 8 时转成红黑树
+     * 在存储数据时，当链表长度大于 8 时转成红黑树
      */
     static final int TREEIFY_THRESHOLD = 8;
 
@@ -340,9 +340,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static Class<?> comparableClassFor(Object x) {
         if (x instanceof Comparable) {
             Class<?> c; Type[] ts, as; Type t; ParameterizedType p;
-            if ((c = x.getClass()) == String.class) // bypass checks
+            if ((c = x.getClass()) == String.class) // 如果 x 是字符串类型，直接跳过检查
                 return c;
-            if ((ts = c.getGenericInterfaces()) != null) {
+            if ((ts = c.getGenericInterfaces()) != null) {//  
                 for (int i = 0; i < ts.length; ++i) {
                     if (((t = ts[i]) instanceof ParameterizedType) &&
                         ((p = (ParameterizedType)t).getRawType() ==
@@ -359,7 +359,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * 比较 k 和 x
      */
-    @SuppressWarnings({"rawtypes","unchecked"}) // for cast to Comparable
+    @SuppressWarnings({"rawtypes","unchecked"}) //  强制转换为 Comparable
     static int compareComparables(Class<?> kc, Object k, Object x) {
         return (x == null || x.getClass() != kc ? 0 :
                 ((Comparable)k).compareTo(x));
@@ -367,7 +367,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * 返回给定目标容量的 2 次方。
-     * 即如果输入容量不为 2 的次方，则返回最接近的输入值的 2 的次方
+     * 即如果输入容量不为 2 的次方，则返回大于等于输入值并最接近的输入值的 2 的次方
      */
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
@@ -432,25 +432,20 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      *         or the load factor is nonpositive
      */
     public HashMap(int initialCapacity, float loadFactor) {
-        if (initialCapacity < 0)
-            //如果容量小于 0 则抛出异常
+        if (initialCapacity < 0)//  如果容量小于 0 则抛出异常
             throw new IllegalArgumentException("Illegal initial capacity: " +
                                                initialCapacity);
-        if (initialCapacity > MAXIMUM_CAPACITY)
-            //如果容量大于最大容量限制则将容量设置为最大容量
+        if (initialCapacity > MAXIMUM_CAPACITY)//  如果容量大于最大容量限制则将容量设置为最大容量
             initialCapacity = MAXIMUM_CAPACITY;
-        if (loadFactor <= 0 || Float.isNaN(loadFactor))
-            //如果平衡因子小于 0 或者不是数字则抛出异常
+        if (loadFactor <= 0 || Float.isNaN(loadFactor))//  如果平衡因子小于 0 或者不是数字则抛出异常
             throw new IllegalArgumentException("Illegal load factor: " +
                                                loadFactor);
-        this.loadFactor = loadFactor;
-        //未初始化 table 临界值为容量匹配到最大的2的幂次
+        this.loadFactor = loadFactor;//  未初始化 table 临界值为容量匹配到最大的2的幂次
         this.threshold = tableSizeFor(initialCapacity);
     }
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the specified initial
-     * capacity and the default load factor (0.75).
+     * 用默认的负载因子(0.75)和指定的初始容量构造一个空的 Hash Map
      *
      * @param  initialCapacity the initial capacity.
      * @throws IllegalArgumentException if the initial capacity is negative.
@@ -460,11 +455,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Constructs an empty <tt>HashMap</tt> with the default initial capacity
-     * (16) and the default load factor (0.75).
+     * 用默认的负载因子(0.75)和默认的的初始容量(16)构造一个空的 Hash Map
      */
     public HashMap() {
-        this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+        this.loadFactor = DEFAULT_LOAD_FACTOR; // 所有其它字段都是默认
     }
 
     /**
@@ -511,24 +505,23 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * 返回 Map 元素数量
      *
-     * @return the number of key-value mappings in this map
+     * @return 返回 Map 元素数量
      */
     public int size() {
         return size;
     }
 
     /**
-     * Returns <tt>true</tt> if this map contains no key-value mappings.
+     * 判断 Map 是否为空
      *
-     * @return <tt>true</tt> if this map contains no key-value mappings
+     * @return 返回 Map 是否为空
      */
     public boolean isEmpty() {
         return size == 0;
     }
 
     /**
-     * Returns the value to which the specified key is mapped,
-     * or {@code null} if this map contains no mapping for the key.
+     * 返回 Map 中指定 key 对应的 value 如果 key 不存在就返回空
      *
      * <p>More formally, if this map contains a mapping from a key
      * {@code k} to a value {@code v} such that {@code (key==null ? k==null :
@@ -549,7 +542,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Implements Map.get and related methods.
+     * 实现 Map.get 和相关方法.
      *
      * @param hash key 的 hash 值
      * @param key key
@@ -602,34 +595,34 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Implements Map.put and related methods.
+     * 实现 Map.put 和相关方法
      *
-     * @param hash hash for key
-     * @param key the key
-     * @param value the value to put
-     * @param onlyIfAbsent if true, don't change existing value
-     * @param evict if false, the table is in creation mode.
-     * @return previous value, or null if none
+     * @param hash  key 的 hash 值
+     * @param key key
+     * @param value value
+     * @param onlyIfAbsent 如果这个值为 true, 则当这个 key 已存在时不将旧 value 值覆盖
+     * @param evict 如果为 false，则表处于创建模式。
+     * @return 返回以前的 value, 如果以前没有 value 则返回 null
      */
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
         Node<K,V>[] tab; Node<K,V> p; int n, i;
-        if ((tab = table) == null || (n = tab.length) == 0)
+        if ((tab = table) == null || (n = tab.length) == 0)//  如果表为空，即 Node 数组未初始化则 resize()
             n = (tab = resize()).length;
-        if ((p = tab[i = (n - 1) & hash]) == null)
+        if ((p = tab[i = (n - 1) & hash]) == null)//  如果 key hash 值对应的 Node 数组中的位置空(没有发生 hash 冲突)，则直接将该元素放入数组中对应的空位置
             tab[i] = newNode(hash, key, value, null);
-        else {
+        else {//  否则说明 hash 冲突
             Node<K,V> e; K k;
             if (p.hash == hash &&
-                ((k = p.key) == key || (key != null && key.equals(k))))
+                ((k = p.key) == key || (key != null && key.equals(k))))//  如果 hash 冲突后该位置第一个元素就是目标元素 key，则直接选中这第一个元素
                 e = p;
-            else if (p instanceof TreeNode)
+            else if (p instanceof TreeNode)//  否则，如果这个第一个元素时红黑树节点则用树的操作将目标元素放入树中
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
-            else {
-                for (int binCount = 0; ; ++binCount) {
+            else {//  如果不是树节点，则说明是链表，如果需要插入则采用尾插法插入元素
+                for (int binCount = 0; ; ++binCount) {//  计算已有元素个数
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
-                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        if (binCount >= TREEIFY_THRESHOLD - 1) //  如果已有元素个数大于等于 TREEIFY_THRESHOLD 则将链表变为红黑树
                             treeifyBin(tab, hash);
                         break;
                     }
@@ -639,18 +632,18 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     p = e;
                 }
             }
-            if (e != null) { // existing mapping for key
-                V oldValue = e.value;
-                if (!onlyIfAbsent || oldValue == null)
+            if (e != null) { //  e != null 说明目标元素本身就存在表中，此处需处理是否更新 value 值
+                V oldValue = e.value;//  获取旧值，用于返回结果
+                if (!onlyIfAbsent || oldValue == null)//  如果 onlyIfAbsent 为 false 或者 旧值为 null 则跟新旧值
                     e.value = value;
-                afterNodeAccess(e);
+                afterNodeAccess(e);//  访问元素后操作，空方法
                 return oldValue;
             }
         }
-        ++modCount;
-        if (++size > threshold)
+        ++modCount;//  更新表的版本，表的修改次数加一
+        if (++size > threshold)//  如果加完这个元素后表大小超过了临界值，则扩容并重新 hash
             resize();
-        afterNodeInsertion(evict);
+        afterNodeInsertion(evict);//  加完元素后的操作，空方法
         return null;
     }
 
@@ -764,7 +757,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * 从另一个 Map 中复制所有值到此 Map
-     * 当另一 Map key 和此 Map key 相同时此 Map 对应 key 的 value 会被另一 Map 的 value 替换
+     * 当另一 Map key 和此 Map key 相同时，此 Map 对应 key 的 value 会被另一 Map 的 value 替换
      *
      * @param m mappings to be stored in this map
      * @throws NullPointerException if the specified map is null
@@ -776,7 +769,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * 根据 Key 从 Map 中删除特定的元素，并返回 value
      *
-     * @param  key key whose mapping is to be removed from the map
+     * @param  key 要删除元素的 key
      * @return the previous value associated with <tt>key</tt>, or
      *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
      *         (A <tt>null</tt> return can also indicate that the map
