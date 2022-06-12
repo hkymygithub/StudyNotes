@@ -601,7 +601,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @param key key
      * @param value value
      * @param onlyIfAbsent 如果这个值为 true, 则当这个 key 已存在时不将旧 value 值覆盖
-     * @param evict 如果为 false，则表处于创建模式。
+     * @param evict 如果为 false，则表处于创建模式。此字段将会作为 afterNodeInsertion(evict) 方法参数
      * @return 返回以前的 value, 如果以前没有 value 则返回 null
      */
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
@@ -730,17 +730,16 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Replaces all linked nodes in bin at index for given hash unless
-     * table is too small, in which case resizes instead.
+     * 将原有链表结构转化为树形结构，但如果 table 太小则只是扩容
      */
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;
-        if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+        if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)//  如果 table 未初始化并且 table 的长度小于 MIN_TREEIFY_CAPACITY (64) 则只扩容
             resize();
         else if ((e = tab[index = (n - 1) & hash]) != null) {
             TreeNode<K,V> hd = null, tl = null;
             do {
-                TreeNode<K,V> p = replacementTreeNode(e, null);
+                TreeNode<K,V> p = replacementTreeNode(e, null);//  替换树节点
                 if (tl == null)
                     hd = p;
                 else {
@@ -758,8 +757,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * 从另一个 Map 中复制所有值到此 Map
      * 当另一 Map key 和此 Map key 相同时，此 Map 对应 key 的 value 会被另一 Map 的 value 替换
      *
-     * @param m mappings to be stored in this map
-     * @throws NullPointerException if the specified map is null
+     * @param m 要被放入此 Map 的 Map 对象
+     * @throws NullPointerException 如果参数 Map 等于 null 则抛出异常
      */
     public void putAll(Map<? extends K, ? extends V> m) {
         putMapEntries(m, true);
@@ -769,10 +768,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * 根据 Key 从 Map 中删除特定的元素，并返回 value
      *
      * @param  key 要删除元素的 key
-     * @return the previous value associated with <tt>key</tt>, or
-     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
-     *         (A <tt>null</tt> return can also indicate that the map
-     *         previously associated <tt>null</tt> with <tt>key</tt>.)
+     * @return 返回之前的 value (可能为 null)
      */
     public V remove(Object key) {
         Node<K,V> e;
@@ -849,9 +845,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * 如果 Map 中包含指定的 value 则返回 true
      *
-     * @param value value whose presence in this map is to be tested
-     * @return <tt>true</tt> if this map maps one or more keys to the
-     *         specified value
+     * @param value 要被测试的 value
+     * @return 如果 Map 中有一个或多个特定的 value 则返回 true
      */
     public boolean containsValue(Object value) {
         Node<K,V>[] tab; V v;
@@ -882,7 +877,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         return ks;
     }
 
-    final class KeySet extends AbstractSet<K> {
+    final class KeySet extends AbstractSet<K> {//  KeySet
         public final int size()                 { return size; }
         public final void clear()               { HashMap.this.clear(); }
         public final Iterator<K> iterator()     { return new KeyIterator(); }
@@ -910,19 +905,11 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Returns a {@link Collection} view of the values contained in this map.
-     * The collection is backed by the map, so changes to the map are
-     * reflected in the collection, and vice-versa.  If the map is
-     * modified while an iteration over the collection is in progress
-     * (except through the iterator's own <tt>remove</tt> operation),
-     * the results of the iteration are undefined.  The collection
-     * supports element removal, which removes the corresponding
-     * mapping from the map, via the <tt>Iterator.remove</tt>,
-     * <tt>Collection.remove</tt>, <tt>removeAll</tt>,
-     * <tt>retainAll</tt> and <tt>clear</tt> operations.  It does not
-     * support the <tt>add</tt> or <tt>addAll</tt> operations.
-     *
-     * @return a view of the values contained in this map
+     * 返回这个 Map 中的 value 集合
+     * 这个集合与 Map 相关联，如果 Map 修改了，这个集合中的元素也会相应修改。
+     * 除了 Map 自己的迭代器，其他时候对 Map 进行修改，此集合的迭代结果将会不确定
+     * 这个 value 集合也支持元素删除，当通过该集合本身迭代器删除元素时其变化会反映到 Map 中，
+     * 即在这个集合中删除元素，Map 中对应 key value 也会被删除
      */
     public Collection<V> values() {
         Collection<V> vs = values;
@@ -941,7 +928,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         public final Spliterator<V> spliterator() {
             return new ValueSpliterator<>(HashMap.this, 0, -1, 0, 0);
         }
-        public final void forEach(Consumer<? super V> action) {
+        public final void forEach(Consumer<? super V> action) {//  遍历操作 value 集合
             Node<K,V>[] tab;
             if (action == null)
                 throw new NullPointerException();
@@ -1023,23 +1010,23 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     // Overrides of JDK8 Map extension methods
 
     @Override
-    public V getOrDefault(Object key, V defaultValue) {
+    public V getOrDefault(Object key, V defaultValue) {// 如果 Map 中没有对应的值则返回 defaultValue (默认值)
         Node<K,V> e;
         return (e = getNode(hash(key), key)) == null ? defaultValue : e.value;
     }
 
     @Override
-    public V putIfAbsent(K key, V value) {
+    public V putIfAbsent(K key, V value) {//  如果某个 key 对应的 value 不存在则放入，否则不放入
         return putVal(hash(key), key, value, true, true);
     }
 
     @Override
-    public boolean remove(Object key, Object value) {
+    public boolean remove(Object key, Object value) {//  移除元素
         return removeNode(hash(key), key, value, true, true) != null;
     }
 
     @Override
-    public boolean replace(K key, V oldValue, V newValue) {
+    public boolean replace(K key, V oldValue, V newValue) {//  如果 key 对应的 value 等于 oldValue 则替换元素
         Node<K,V> e; V v;
         if ((e = getNode(hash(key), key)) != null &&
             ((v = e.value) == oldValue || (v != null && v.equals(oldValue)))) {
@@ -1051,7 +1038,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     @Override
-    public V replace(K key, V value) {
+    public V replace(K key, V value) {//  替换元素，强制替换
         Node<K,V> e;
         if ((e = getNode(hash(key), key)) != null) {
             V oldValue = e.value;
@@ -1285,10 +1272,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     // Cloning and serialization
 
     /**
-     * Returns a shallow copy of this <tt>HashMap</tt> instance: the keys and
-     * values themselves are not cloned.
-     *
-     * @return a shallow copy of this map
+     * 返回一个浅拷贝的 HashMap 实例，即 key value 不会被拷贝
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -1305,9 +1289,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         return result;
     }
 
-    // These methods are also used when serializing HashSets
-    final float loadFactor() { return loadFactor; }
-    final int capacity() {
+    // 这些方法在序列化 HashSet 的时候也会用到
+    final float loadFactor() { return loadFactor; }//  返回负载因子
+    final int capacity() {//  返回 Map 容量
         return (table != null) ? table.length :
             (threshold > 0) ? threshold :
             DEFAULT_INITIAL_CAPACITY;
