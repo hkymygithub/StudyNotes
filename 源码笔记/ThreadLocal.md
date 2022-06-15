@@ -416,17 +416,14 @@ public class ThreadLocal<T> {
         }
 
         /**
-         * Set the value associated with key.
+         * 根据 key 设置 value
          *
          * @param key the thread local object
          * @param value the value to be set
          */
         private void set(ThreadLocal<?> key, Object value) {
 
-            // We don't use a fast path as with get() because it is at
-            // least as common to use set() to create new entries as
-            // it is to replace existing ones, in which case, a fast
-            // path would fail more often than not.
+            // 我们不像 get() 那样使用快速路径，因为使用 set() 创建新条目与替换现有条目一样普遍，在这种情况下，快速路径往往会失败.
 
             Entry[] tab = table;
             int len = tab.length;
@@ -437,36 +434,36 @@ public class ThreadLocal<T> {
                  e = tab[i = nextIndex(i, len)]) {
                 ThreadLocal<?> k = e.get();
 
-                if (k == key) {
+                if (k == key) {// 如果 key 已存在 则替换 value
                     e.value = value;
                     return;
                 }
 
-                if (k == null) {
+                if (k == null) {// 如果 key 等于 null,说明此位置条目已过期，则替换此条目
                     replaceStaleEntry(key, value, i);
                     return;
                 }
             }
-
+            // 在表中没有找到 key 并且没有过期的项，则往后招一个空位放入
             tab[i] = new Entry(key, value);
-            int sz = ++size;
-            if (!cleanSomeSlots(i, sz) && sz >= threshold)
+            int sz = ++size;// size 加一
+            if (!cleanSomeSlots(i, sz) && sz >= threshold)// 如果没有清除过期条目并且表大小超过阈值则重新哈希
                 rehash();
         }
 
         /**
-         * Remove the entry for key.
+         * 根据传入的 key 删除元素
          */
         private void remove(ThreadLocal<?> key) {
             Entry[] tab = table;
             int len = tab.length;
-            int i = key.threadLocalHashCode & (len - 1);
+            int i = key.threadLocalHashCode & (len - 1);// 确定表中的位置
             for (Entry e = tab[i];
                  e != null;
                  e = tab[i = nextIndex(i, len)]) {
                 if (e.get() == key) {
-                    e.clear();
-                    expungeStaleEntry(i);
+                    e.clear();// 将此条目过期
+                    expungeStaleEntry(i);// 删除过期条目
                     return;
                 }
             }
@@ -551,9 +548,7 @@ public class ThreadLocal<T> {
          * 这也会删除在尾随 null 之前遇到的任何其他陈旧条目。见 Knuth，第 6.4 节
          *
          * @param staleSlot index of slot known to have null key
-         * @return the index of the next null slot after staleSlot
-         * (all between staleSlot and this slot will have been checked
-         * for expunging).
+         * @return 返回过期条目之后的下一个空槽的索引（所有在过期条目和这个槽之间的都将被检查是否被删除）。
          */
         private int expungeStaleEntry(int staleSlot) {
             Entry[] tab = table;
@@ -571,7 +566,7 @@ public class ThreadLocal<T> {
                  (e = tab[i]) != null;
                  i = nextIndex(i, len)) {
                 ThreadLocal<?> k = e.get();
-                if (k == null) {
+                if (k == null) {// 条目过时，进行删除操作
                     e.value = null;
                     tab[i] = null;
                     size--;
@@ -580,8 +575,7 @@ public class ThreadLocal<T> {
                     if (h != i) {
                         tab[i] = null;
 
-                        // Unlike Knuth 6.4 Algorithm R, we must scan until
-                        // null because multiple entries could have been stale.
+                        // 与 Knuth 6.4 算法 R 不同，我们必须扫描到 null，因为多个条目可能已经过时。
                         while (tab[h] != null)
                             h = nextIndex(h, len);
                         tab[h] = e;
@@ -592,13 +586,10 @@ public class ThreadLocal<T> {
         }
 
         /**
-         * Heuristically scan some cells looking for stale entries.
-         * This is invoked when either a new element is added, or
-         * another stale one has been expunged. It performs a
-         * logarithmic number of scans, as a balance between no
-         * scanning (fast but retains garbage) and a number of scans
-         * proportional to number of elements, that would find all
-         * garbage but would cause some insertions to take O(n) time.
+         * 启发式地扫描一些单元格以查找过时的条目。
+         * 当添加新元素或删除另一个陈旧元素时调用此方法。
+         * 它执行对数扫描，作为不扫描（快速但保留垃圾）和与元素数量成比例的扫描数量之间的平衡，
+         * 这将找到所有垃圾但会导致一些插入花费 O(n) 时间。
          *
          * @param i a position known NOT to hold a stale entry. The
          * scan starts at the element after i.
@@ -613,7 +604,7 @@ public class ThreadLocal<T> {
          * using straight log n. But this version is simple, fast, and
          * seems to work well.)
          *
-         * @return true if any stale entries have been removed.
+         * @return 如果有条目被删除了则返回 true
          */
         private boolean cleanSomeSlots(int i, int n) {
             boolean removed = false;
@@ -622,30 +613,28 @@ public class ThreadLocal<T> {
             do {
                 i = nextIndex(i, len);
                 Entry e = tab[i];
-                if (e != null && e.get() == null) {
+                if (e != null && e.get() == null) {// 说明找到了一个过期条目
                     n = len;
-                    removed = true;
-                    i = expungeStaleEntry(i);
+                    removed = true;// 表示已经删除部分内容
+                    i = expungeStaleEntry(i);// 具体删除操作
                 }
-            } while ((n >>>= 1) != 0);
+            } while ((n >>>= 1) != 0);// 并非遍历每个元素，索引 i 每次除 2，遍历时间大约为 log(n)
             return removed;
         }
 
         /**
-         * Re-pack and/or re-size the table. First scan the entire
-         * table removing stale entries. If this doesn't sufficiently
-         * shrink the size of the table, double the table size.
+         * 重新打包和/或重新调整表格大小。首先扫描整个表删除过时的条目。如果这不能充分缩小表格的大小，则将表格大小加倍。
          */
         private void rehash() {
-            expungeStaleEntries();
+            expungeStaleEntries();// 清除过期条目
 
-            // Use lower threshold for doubling to avoid hysteresis
+            // 使用较低的加倍阈值以避免滞后
             if (size >= threshold - threshold / 4)
                 resize();
         }
 
         /**
-         * Double the capacity of the table.
+         * 将表的容量乘 2
          */
         private void resize() {
             Entry[] oldTab = table;
