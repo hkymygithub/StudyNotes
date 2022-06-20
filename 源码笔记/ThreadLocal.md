@@ -98,7 +98,7 @@ public class ThreadLocal<T> {
      * 哈希增量
      * 将连续生成的哈希码之间的差异 - 将顺序的本地线程 ID 隐式地转换为接近最佳传播的乘法哈希值，用于二次幂大小的表。
      */
-    private static final int HASH_INCREMENT = 0x61c88647;
+    private static final int  HASH_INCREMENT = 0x61c88647;
 
     /**
      * 返回下一个哈希值
@@ -196,8 +196,8 @@ public class ThreadLocal<T> {
     /**
      * 
      * 删除此线程 ThreadLocalMap 中以本实例为 key 的 value。
-     如果这个 ThreadLocal 随后被当前线程调用了 get 方法，它的值将通过调用它的 initialValue 方法重新初始化，除非它的值提前被 set 。
-     因此在当前线程中可能会多次调用此 ThreadLocal 实例的 initialValue 方法。
+     * 如果这个 ThreadLocal 随后被当前线程调用了 get 方法，它的值将通过调用它的 initialValue 方法重新初始化，除非它的值提前被 set 。
+     * 因此在当前线程中可能会多次调用此 ThreadLocal 实例的 initialValue 方法。
      *
      * @since 1.5
      */
