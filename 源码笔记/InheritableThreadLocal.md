@@ -31,18 +31,11 @@ package java.lang;
 import java.lang.ref.*;
 
 /**
- * This class extends <tt>ThreadLocal</tt> to provide inheritance of values
- * from parent thread to child thread: when a child thread is created, the
- * child receives initial values for all inheritable thread-local variables
- * for which the parent has values.  Normally the child's values will be
- * identical to the parent's; however, the child's value can be made an
- * arbitrary function of the parent's by overriding the <tt>childValue</tt>
- * method in this class.
- *
- * <p>Inheritable thread-local variables are used in preference to
- * ordinary thread-local variables when the per-thread-attribute being
- * maintained in the variable (e.g., User ID, Transaction ID) must be
- * automatically transmitted to any child threads that are created.
+ * 此类继承于 ThreadLocal 以提供从父线程到子线程的值继承
+ * 当创建子线程时，子线程的初始值为父线程所有可继承线程局部变量的值。通常，子线程的值和父线程相同；
+ * 但是，通过覆盖此类中的 childValue 方法，可以使子线程的值变成任意值。
+ * 当在变量中维护的每个线程属性（例如，用户 ID、事务 ID）必须自动传输到创建的任何子线程时
+ * InheritableThreadLocal 中的值应该优先于 ThreadLocal 使用.
  *
  * @author Josh Bloch and Doug Lea
  * @see     ThreadLocal
@@ -51,13 +44,9 @@ import java.lang.ref.*;
 
 public class InheritableThreadLocal<T> extends ThreadLocal<T> {
     /**
-     * Computes the child's initial value for this inheritable thread-local
-     * variable as a function of the parent's value at the time the child
-     * thread is created.  This method is called from within the parent
-     * thread before the child is started.
-     * <p>
-     * This method merely returns its input argument, and should be overridden
-     * if a different behavior is desired.
+     * 计算此可继承线程局部变量的子项初始值，作为创建子线程时父项值的函数。
+     * 在启动子线程之前，从父线程中调用此方法。 
+     * 此方法仅返回其输入参数，如果需要不同的行为，则应将其覆盖。
      *
      * @param parentValue the parent thread's value
      * @return the child thread's initial value
@@ -67,7 +56,8 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Get the map associated with a ThreadLocal.
+     * 获取与 ThreadLocal 关联的 Map。
+     * 此处获取的是线程中的 inheritableThreadLocals 属性，即继承的 ThreadLocalMap
      *
      * @param t the current thread
      */
@@ -76,7 +66,7 @@ public class InheritableThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Create the map associated with a ThreadLocal.
+     * 为线程的 inheritableThreadLocals 属性创建一个 ThreadLocalMap。
      *
      * @param t the current thread
      * @param firstValue value for the initial entry of the table.
