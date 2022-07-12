@@ -15,7 +15,7 @@ mkdir -p ./mysql/conf
 mkdir -p ./mysql/data
 ```
 
-### 创建 my.conf 文件
+#### 创建 my.conf 文件
 
 ```bash
 cd mysql/conf
@@ -81,13 +81,13 @@ services:
       - "--collation-server=utf8mb4_unicode_ci"
 ```
 
-#### 运行 Redis
+#### 运行 Mysql
 
 ```bash
 docker-compose up -d
 ```
 
-#### 检查 Redis 是否启动
+#### 检查 Mysql 是否启动
 
 ```bash
 docker ps
